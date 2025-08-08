@@ -29,6 +29,8 @@ model Transaction {
   amount Int
   description String
   type TransactionType
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
 
 enum TransactionType {

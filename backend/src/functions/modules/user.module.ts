@@ -5,7 +5,7 @@ import { LoginService } from '../login.service';
 import { LoginController } from 'src/routes/login.controller';
 
 @Module({
-    providers: [RegisterService, LoginService],
-    controllers: [RegisterController, LoginController]
+  providers: [RegisterService, LoginService],
+  controllers: [RegisterController, LoginController],
 })
 export class UserModule {}

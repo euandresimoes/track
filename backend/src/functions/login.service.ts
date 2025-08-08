@@ -2,9 +2,18 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/db/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from 'src/utils/jwt/jwt.service';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginRequestDto {
+  @ApiProperty({
+    description: 'Email',
+    example: 'johndoe@example.com',
+  })
   email: string;
+  @ApiProperty({
+    description: 'Password',
+    example: 'Password123!',
+  })
   password: string;
 }
 

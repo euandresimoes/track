@@ -1,9 +1,16 @@
 services:
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - db_redis_data:/var/lib/redis
+
   db:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: app
       MYSQL_USER: mysql
       MYSQL_PASSWORD: mysql
@@ -12,20 +19,21 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
-  db_test:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: mysql
-      MYSQL_DATABASE: app_test
-      MYSQL_USER: mysql
-      MYSQL_PASSWORD: mysql
-    ports:
-      - 3307:3306
-    tmpfs:
-      - /var/lib/mysql
-    volumes:
-      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  # db_test:
+  #   image: mysql:8.0
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: mysql
+  #     MYSQL_DATABASE: app_test
+  #     MYSQL_USER: mysql
+  #     MYSQL_PASSWORD: mysql
+  #   ports:
+  #     - 3307:3306
+  #   tmpfs:
+  #     - /var/lib/mysql
+  #   volumes:
+  #     - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
 volumes:
   db_data:
+  db_redis_data:
