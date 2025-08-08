@@ -6,6 +6,12 @@ import morgan from 'morgan';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Cors config
+  app.enableCors({
+    origin: 'http://localhost:8080',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  });
+
   // Swagger config
   const config = new DocumentBuilder()
     .setTitle('Track API')

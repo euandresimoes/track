@@ -9,6 +9,10 @@ const swagger_1 = require("@nestjs/swagger");
 const morgan_1 = __importDefault(require("morgan"));
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.enableCors({
+        origin: 'http://localhost:8080',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Track API')
         .setDescription('The Track API description')
