@@ -1,10 +1,10 @@
-import api from './api';
+import api from "./api";
 
-export type TransactionType = 'EXPENSE' | 'INCOME';
+export type TransactionType = "EXPENSE" | "INCOME";
 
 export interface Transaction {
   id: number;
-  amount: number;
+  amount: number | string;
   description: string;
   type: TransactionType;
   created_at: string;
@@ -18,8 +18,10 @@ export interface CreateTransactionData {
 }
 
 const transactionService = {
-  createTransaction: async (data: CreateTransactionData): Promise<Transaction> => {
-    const response = await api.post<Transaction>('/transaction/create', data);
+  createTransaction: async (
+    data: CreateTransactionData
+  ): Promise<Transaction> => {
+    const response = await api.post<Transaction>("/transaction/create", data);
     return response.data;
   },
 
@@ -28,7 +30,7 @@ const transactionService = {
   },
 
   getTransactions: async (): Promise<Transaction[]> => {
-    const response = await api.get<Transaction[]>('/transaction/find');
+    const response = await api.get<Transaction[]>("/transaction/find");
     return response.data;
   },
 };

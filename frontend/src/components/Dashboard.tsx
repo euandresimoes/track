@@ -299,7 +299,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-success">
-                R$ {summary.income.toFixed(2)}
+                R$ {summary.income}
               </div>
             </CardContent>
           </Card>
@@ -311,7 +311,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-destructive">
-                R$ {summary.expenses.toFixed(2)}
+                R$ {summary.expenses}
               </div>
             </CardContent>
           </Card>
@@ -327,7 +327,7 @@ const Dashboard = () => {
                   summary.balance >= 0 ? "text-success" : "text-destructive"
                 }`}
               >
-                R$ {summary.balance.toFixed(2)}
+                R$ {summary.balance}
               </div>
             </CardContent>
           </Card>
@@ -417,7 +417,7 @@ const Dashboard = () => {
                       }`}
                     >
                       {transaction.type === "INCOME" ? "+" : "-"}R${" "}
-                      {transaction.amount.toFixed(2)}
+                      {transaction.amount}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button

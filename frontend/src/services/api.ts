@@ -1,13 +1,13 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/v1',
+  baseURL: "http://localhost:3000/v1",
 });
 
 // Interceptor para adicionar o token de autenticação em todas as requisições
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,9 +24,9 @@ api.interceptors.response.use(
   (error) => {
     // Se o erro for 401 (Unauthorized), redirecionar para a página de login
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
