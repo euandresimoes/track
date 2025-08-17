@@ -1,154 +1,317 @@
+import { useState, useEffect } from "react";
 import {
   Home,
-  TrendingUp,
+  Users,
+  Briefcase,
+  FileText,
   Settings,
-  User,
-  LogOut,
-  Sun,
+  ChevronDown,
+  ChevronUp,
   Moon,
-  HomeIcon,
+  LogOut,
+  Menu,
+  PanelLeft,
+  PanelRight,
+  User,
+  TrendingUp,
+  TrendingDown,
+  ChartPie,
+  UserPlus,
+  Handshake,
+  Building2,
+  Store,
+  ChartColumnBig,
+  Wallet,
+  LayoutDashboard,
 } from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
-import { useTheme } from "next-themes";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarFooter,
-  useSidebar,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-
-const navigationItems = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Relatórios", url: "/relatorios", icon: TrendingUp },
-  { title: "Configurações", url: "/configuracoes", icon: Settings },
-];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
-  const location = useLocation();
-  const { theme, setTheme } = useTheme();
-  const { user, logout } = useAuth();
-  const currentPath = location.pathname;
+  const [openPersonal, setOpenPersonal] = useState(false);
+  const [openBusiness, setOpenBusiness] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [dark, setDark] = useState(() => {
+    const theme = localStorage.getItem("theme");
+    return theme === "dark";
+  });
 
-  const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive
-      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-      : "hover:bg-sidebar-accent/50";
+  useEffect(() => {
+    const root = document.documentElement;
+    if (dark) {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [dark]);
 
-  const isCollapsed = state === "collapsed";
+  const sidebarWidth = collapsed ? "w-16" : "w-64";
+  const iconSize = collapsed ? 20 : 18;
+  const itemClass = collapsed
+    ? "flex flex-col items-center justify-center h-12 text-foreground rounded-md transition-colors cursor-pointer px-1 group hover:bg-foreground hover:[&>*]:text-foreground/80"
+    : "flex items-center gap-2 text-foreground rounded-md py-2 transition-colors cursor-pointer hover:[&>*]:text-foreground/80";
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
-  return (
-    <Sidebar className={isCollapsed ? "w-14" : "w-60"} collapsible="icon">
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground">
-            {!isCollapsed && "Navegação"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground">
-            {!isCollapsed && "Tema"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={toggleTheme}>
-                  {theme === "dark" ? (
-                    <Sun className="h-4 w-4" />
-                  ) : (
-                    <Moon className="h-4 w-4" />
-                  )}
-                  {!isCollapsed && (
-                    <span>
-                      {theme === "dark" ? "Tema Claro" : "Tema Escuro"}
-                    </span>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter>
-        {!isCollapsed && <Separator className="mb-4" />}
-
-        <div
-          className={`p-2 ${
-            isCollapsed ? "flex flex-col items-center space-y-2" : "space-y-3"
-          }`}
-        >
-          {!isCollapsed && (
-            <div className="flex items-center space-x-3 px-2">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src="" />
-                <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                  U
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {user?.nome || "Usuário"}
-                </p>
-                <p className="text-xs text-sidebar-foreground/70 truncate">
-                  {user?.email || ""}
-                </p>
+  const sidebarContent = (
+    <aside
+      className={`flex flex-col h-screen bg-background border-border border-r shadow-sm justify-between transition-all ease-in-out duration-300 ${sidebarWidth}`}
+    >
+      <div>
+        <nav className={`py-4 ${collapsed ? "px-2" : "px-6"}`}>
+          <div
+            className={
+              collapsed
+                ? "flex flex-col items-start mb-4"
+                : "flex flex-col gap-1 mb-4 items-start w-full"
+            }
+          >
+            {!collapsed && (
+              <div className="flex items-center w-full justify-between">
+                <h2 className="text-xs font-semibold text-foreground/90">
+                  Navegação
+                </h2>
+                <button
+                  className="text-foreground hover:text-foreground/80"
+                  onClick={() => setCollapsed((v) => !v)}
+                  aria-label="Retrair sidebar"
+                >
+                  <PanelLeft size={20} />
+                </button>
               </div>
+            )}
+            {collapsed && (
+              <div className="w-full">
+                <button
+                  className="flex flex-col items-center justify-center h-12 w-full text-foreground rounded-md transition-colors cursor-pointer px-1 group hover:bg-foreground"
+                  onClick={() => setCollapsed((v) => !v)}
+                  aria-label="Expandir sidebar"
+                >
+                  <PanelRight
+                    size={20}
+                    className="group-hover:text-background transition-colors"
+                  />
+                </button>
+              </div>
+            )}
+          </div>
+          <ul className="space-y-1">
+            <li className={itemClass}>
+              <LayoutDashboard
+                size={iconSize}
+                className={
+                  collapsed
+                    ? "group-hover:text-background transition-colors"
+                    : "text-foreground"
+                }
+              />
+              {!collapsed && <span className="text-foreground">Dashboard</span>}
+            </li>
+            <li
+              className={itemClass + " cursor-pointer"}
+              onClick={() => setOpenPersonal((v) => !v)}
+            >
+              <Wallet
+                size={iconSize}
+                className={
+                  collapsed
+                    ? "group-hover:text-background transition-colors"
+                    : "text-foreground"
+                }
+              />
+              {!collapsed && <span className="text-foreground">Pessoal</span>}
+              {!collapsed &&
+                (openPersonal ? (
+                  <ChevronUp size={16} className="ml-auto text-foreground" />
+                ) : (
+                  <ChevronDown size={16} className="ml-auto text-foreground" />
+                ))}
+            </li>
+            {!collapsed && (
+              <li
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  openPersonal ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                <ul className="pl-7 space-y-1">
+                  <li className={itemClass}>
+                    <TrendingUp size={iconSize} className="text-foreground" />
+                    <span className="text-foreground">Vendas</span>
+                  </li>
+                  <li className={itemClass}>
+                    <TrendingDown size={iconSize} className="text-foreground" />
+                    <span className="text-foreground">Gastos</span>
+                  </li>
+                  <li className={itemClass}>
+                    <FileText size={iconSize} className="text-foreground" />
+                    <span className="text-foreground">Boletos</span>
+                  </li>
+                </ul>
+              </li>
+            )}
+            <li
+              className={itemClass + " cursor-pointer"}
+              onClick={() => setOpenBusiness((v) => !v)}
+            >
+              <Store
+                size={iconSize}
+                className={
+                  collapsed
+                    ? "group-hover:text-background transition-colors"
+                    : "text-foreground"
+                }
+              />
+              {!collapsed && (
+                <span className="text-foreground">Meu Negócio</span>
+              )}
+              {!collapsed &&
+                (openBusiness ? (
+                  <ChevronUp size={16} className="ml-auto text-foreground" />
+                ) : (
+                  <ChevronDown size={16} className="ml-auto text-foreground" />
+                ))}
+            </li>
+            {!collapsed && (
+              <li
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  openBusiness ? "max-h-72 opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                <ul className="pl-7 space-y-1">
+                  <li className={itemClass}>
+                    <TrendingUp size={iconSize} className="text-foreground" />
+                    <span className="text-foreground">Vendas</span>
+                  </li>
+                  <li className={itemClass}>
+                    <TrendingDown size={iconSize} className="text-foreground" />
+                    <span className="text-foreground">Gastos</span>
+                  </li>
+                  <li className={itemClass}>
+                    <Handshake size={iconSize} className="text-foreground" />
+                    <span className="text-foreground">Clientes</span>
+                  </li>
+                  <li className={itemClass}>
+                    <ChartColumnBig
+                      size={iconSize}
+                      className="text-foreground"
+                    />
+                    <span className="text-foreground">Relatórios</span>
+                  </li>
+                </ul>
+              </li>
+            )}
+            <li className={itemClass}>
+              <Settings
+                size={iconSize}
+                className={
+                  collapsed
+                    ? "group-hover:text-background transition-colors"
+                    : "text-foreground"
+                }
+              />
+              {!collapsed && (
+                <span className="text-foreground">Configurações</span>
+              )}
+            </li>
+          </ul>
+          <div className="mt-6">
+            {!collapsed && (
+              <div className="flex items-center w-full mb-2">
+                <h2 className="text-xs font-semibold text-foreground/90">
+                  Tema
+                </h2>
+              </div>
+            )}
+            <div className="flex items-center w-full">
+              <button
+                className={
+                  collapsed
+                    ? "flex flex-col items-center justify-center h-12 w-full text-foreground rounded-md transition-colors cursor-pointer group hover:bg-foreground hover:[&>*]:text-foreground/80"
+                    : "flex items-center gap-2 w-full rounded-md transition-colors text-foreground font-medium mt-2 hover:[&>*]:text-foreground/80"
+                }
+                onClick={() => setDark((d) => !d)}
+                aria-label="Alternar tema"
+              >
+                <Moon
+                  size={iconSize}
+                  className={
+                    collapsed
+                      ? "group-hover:text-background transition-colors"
+                      : "text-foreground"
+                  }
+                />
+                {!collapsed && (
+                  <span className="text-foreground">
+                    {dark ? "Tema Claro" : "Tema Escuro"}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div className={`py-4 border-t ${collapsed ? "px-2" : "px-6"}`}>
+        <div
+          className={
+            collapsed
+              ? "flex flex-col items-center"
+              : "flex items-center gap-3 mb-4"
+          }
+        >
+          <User
+            size={collapsed ? 23 : 28}
+            className="text-foreground muted rounded-full"
+          />
+          {!collapsed && (
+            <div className="flex flex-col">
+              <span className="text-base font-semibold text-foreground leading-tight">
+                Usuário
+              </span>
+              <span className="text-xs text-muted-foreground">
+                usuario@email.com
+              </span>
             </div>
           )}
-
-          {isCollapsed && (
-            <Avatar className="h-8 w-8">
-              <AvatarImage src="" />
-              <AvatarFallback className="bg-primary text-primary-foreground text-sm">
-                U
-              </AvatarFallback>
-            </Avatar>
-          )}
-
-          <Button
-            variant="ghost"
-            size={isCollapsed ? "sm" : "default"}
-            className={`w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-              isCollapsed ? "py-2 px-4 justify-center" : "justify-start"
-            }`}
-            onClick={logout}
-          >
-            <LogOut className="h-4 w-4" />
-            {!isCollapsed && <span className="ml-2">Sair</span>}
-          </Button>
         </div>
-      </SidebarFooter>
-    </Sidebar>
+        <button
+          className={
+            collapsed
+              ? "flex flex-col items-center justify-center h-12 w-full mt-2 text-foreground rounded-md transition-colors cursor-pointer px-1 group hover:bg-foreground"
+              : "flex items-center bg-foreground hover:bg-foreground/90 gap-2 justify-center w-full py-2 rounded-md text-sm font-medium transition-colors mt-4"
+          }
+        >
+          <LogOut
+            size={iconSize}
+            className={
+              collapsed
+                ? "group-hover:text-background transition-colors"
+                : "text-background"
+            }
+          />
+          {!collapsed && <span className="text-background">Sair</span>}
+        </button>
+      </div>
+    </aside>
+  );
+
+  return (
+    <>
+      <button
+        className="md:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-2 shadow"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Abrir menu"
+      >
+        <Menu size={24} />
+      </button>
+      <div className="hidden md:block">{sidebarContent}</div>
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 flex">
+          {sidebarContent}
+          <div
+            className="flex-1 bg-black bg-opacity-30"
+            onClick={() => setMobileOpen(false)}
+          ></div>
+        </div>
+      )}
+    </>
   );
 }

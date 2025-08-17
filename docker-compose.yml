@@ -34,13 +34,13 @@ services:
       redis:
         condition: service_started
 
-  frontend:
-    build: ./frontend
-    ports:
-      - 8080:8080
-    depends_on:
-      backend:
-        condition: service_started
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     backend:
+  #       condition: service_started
 
 volumes:
   db_data:

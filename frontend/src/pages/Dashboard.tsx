@@ -1,7 +1,11 @@
-import Dashboard from "@/components/Dashboard";
+import { AppSidebar } from "@/components/AppSidebar";
 
-const DashboardPage = () => {
-  return <Dashboard />;
+const Dashboard = () => {
+  return (
+    <>
+      <AppSidebar />
+    </>
+  );
 };
 
-export default DashboardPage;
+export default Dashboard;
