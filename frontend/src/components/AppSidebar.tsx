@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  Home,
-  Users,
-  Briefcase,
   FileText,
   Settings,
   ChevronDown,
@@ -15,10 +12,7 @@ import {
   User,
   TrendingUp,
   TrendingDown,
-  ChartPie,
-  UserPlus,
   Handshake,
-  Building2,
   Store,
   ChartColumnBig,
   Wallet,
@@ -30,10 +24,7 @@ export function AppSidebar() {
   const [openBusiness, setOpenBusiness] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dark, setDark] = useState(() => {
-    const theme = localStorage.getItem("theme");
-    return theme === "dark";
-  });
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -54,7 +45,7 @@ export function AppSidebar() {
 
   const sidebarContent = (
     <aside
-      className={`flex flex-col h-screen bg-background border-border border-r shadow-sm justify-between transition-all ease-in-out duration-300 ${sidebarWidth}`}
+      className={`flex flex-col h-screen bg-background border-border border-r shadow-md justify-between transition-smooth ${sidebarWidth}`}
     >
       <div>
         <nav className={`py-4 ${collapsed ? "px-2" : "px-6"}`}>
@@ -249,7 +240,9 @@ export function AppSidebar() {
           </div>
         </nav>
       </div>
-      <div className={`py-4 border-t ${collapsed ? "px-2" : "px-6"}`}>
+      <div
+        className={`py-4 border-t border-border ${collapsed ? "px-2" : "px-6"}`}
+      >
         <div
           className={
             collapsed
@@ -296,7 +289,7 @@ export function AppSidebar() {
   return (
     <>
       <button
-        className="md:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-2 shadow"
+        className="md:hidden fixed top-4 left-4 z-50 bg-background rounded-full p-2 shadow-md"
         onClick={() => setMobileOpen(true)}
         aria-label="Abrir menu"
       >
@@ -307,7 +300,7 @@ export function AppSidebar() {
         <div className="fixed inset-0 z-40 flex">
           {sidebarContent}
           <div
-            className="flex-1 bg-black bg-opacity-30"
+            className="flex-1 bg-background/80"
             onClick={() => setMobileOpen(false)}
           ></div>
         </div>
