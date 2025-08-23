@@ -20,6 +20,7 @@ model User {
   email String @unique
   password String
   transactions Transaction[]
+  bills Bill[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
@@ -40,3 +41,20 @@ enum TransactionType {
   EXPENSE
 }
 
+enum BillStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+model Bill {
+  id Int @id @default(autoincrement())
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id Int
+  amount Decimal
+  description String
+  due_date DateTime
+  status String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
