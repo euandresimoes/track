@@ -8,11 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const user_module_1 = require("./functions/modules/user.module");
 const prisma_module_1 = require("./db/prisma.module");
 const jwt_module_1 = require("./utils/jwt/jwt.module");
-const transaction_module_1 = require("./functions/modules/transaction.module");
 const redis_module_1 = require("./utils/redis/redis.module");
+const bill_module_1 = require("./services/modules/bill.module");
+const transaction_module_1 = require("./services/modules/transaction.module");
+const user_module_1 = require("./services/modules/user.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -21,6 +22,7 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             user_module_1.UserModule,
             transaction_module_1.TransactionModule,
+            bill_module_1.BillModule,
             prisma_module_1.PrismaModule,
             jwt_module_1.JwtModule,
             redis_module_1.RedisModule,

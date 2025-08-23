@@ -15,16 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DeleteTransactionController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const delete_transaction_service_1 = require("../functions/delete-transaction.service");
+const delete_transaction_service_1 = require("../services/delete-transaction.service");
 const user_decorator_1 = require("../utils/decorators/user.decorator");
 const jwt_guard_1 = require("../utils/jwt/jwt.guard");
+const swagger_2 = require("@nestjs/swagger");
 let DeleteTransactionController = class DeleteTransactionController {
     service;
     constructor(service) {
         this.service = service;
     }
-    async delete(user_id, transaction_id) {
-        return this.service.execute(user_id, transaction_id);
+    async delete(userId, transactionId) {
+        return this.service.execute(userId, transactionId);
     }
 };
 exports.DeleteTransactionController = DeleteTransactionController;
@@ -33,13 +34,14 @@ __decorate([
     (0, common_1.UseGuards)(jwt_guard_1.JwtGuard),
     (0, swagger_1.ApiBearerAuth)('access-token'),
     __param(0, (0, user_decorator_1.User)('id')),
-    __param(1, (0, common_1.Query)('id')),
+    __param(1, (0, common_1.Query)('transaction_id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], DeleteTransactionController.prototype, "delete", null);
 exports.DeleteTransactionController = DeleteTransactionController = __decorate([
     (0, common_1.Controller)('v1/transaction/delete'),
+    (0, swagger_2.ApiTags)('Transaction'),
     __metadata("design:paramtypes", [delete_transaction_service_1.DeleteTransactionService])
 ], DeleteTransactionController);
 //# sourceMappingURL=delete-transaction.controller.js.map

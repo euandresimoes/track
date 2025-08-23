@@ -54,7 +54,7 @@ model Bill {
   amount Decimal
   description String
   due_date DateTime
-  status String
+  status BillStatus
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }

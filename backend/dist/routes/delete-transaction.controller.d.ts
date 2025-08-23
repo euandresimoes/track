@@ -1,7 +1,7 @@
-import { DeleteTransactionService } from 'src/functions/delete-transaction.service';
 import { ApiResponse } from 'src/models/api-response.model';
+import { DeleteTransactionService } from 'src/services/delete-transaction.service';
 export declare class DeleteTransactionController {
     private readonly service;
     constructor(service: DeleteTransactionService);
-    delete(user_id: number | string, transaction_id: number): Promise<ApiResponse>;
+    delete(userId: number | string, transactionId: number | string): Promise<ApiResponse>;
 }

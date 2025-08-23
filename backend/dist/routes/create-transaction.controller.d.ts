@@ -1,7 +1,7 @@
-import { CreateTransactionService, TransactionCreateRequestDto } from 'src/functions/create-transaction.service';
 import { ApiResponse } from 'src/models/api-response.model';
+import { CreateTransactionService, TransactionCreateRequestDto } from 'src/services/create-transaction.service';
 export declare class CreateTransactionController {
     private readonly service;
     constructor(service: CreateTransactionService);
-    create(user_id: number, data: TransactionCreateRequestDto): Promise<ApiResponse>;
+    create(userId: number, data: TransactionCreateRequestDto): Promise<ApiResponse>;
 }

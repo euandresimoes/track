@@ -15,16 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FindAllTransactionsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const find_all_transactions_service_1 = require("../functions/find-all-transactions.service");
+const find_all_transactions_service_1 = require("../services/find-all-transactions.service");
 const user_decorator_1 = require("../utils/decorators/user.decorator");
 const jwt_guard_1 = require("../utils/jwt/jwt.guard");
+const swagger_2 = require("@nestjs/swagger");
 let FindAllTransactionsController = class FindAllTransactionsController {
     servicie;
     constructor(servicie) {
         this.servicie = servicie;
     }
-    async findAll(user_id) {
-        return this.servicie.execute(user_id);
+    async findAll(userId) {
+        return this.servicie.execute(userId);
     }
 };
 exports.FindAllTransactionsController = FindAllTransactionsController;
@@ -39,6 +40,7 @@ __decorate([
 ], FindAllTransactionsController.prototype, "findAll", null);
 exports.FindAllTransactionsController = FindAllTransactionsController = __decorate([
     (0, common_1.Controller)('v1/transaction/find'),
+    (0, swagger_2.ApiTags)('Transaction'),
     __metadata("design:paramtypes", [find_all_transactions_service_1.FindAllTransactionsService])
 ], FindAllTransactionsController);
 //# sourceMappingURL=find-all-transactions.controller.js.map

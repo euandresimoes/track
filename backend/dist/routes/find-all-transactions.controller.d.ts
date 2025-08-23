@@ -1,7 +1,7 @@
-import { FindAllTransactionsService } from 'src/functions/find-all-transactions.service';
 import { ApiResponse } from 'src/models/api-response.model';
+import { FindAllTransactionsService } from 'src/services/find-all-transactions.service';
 export declare class FindAllTransactionsController {
     private readonly servicie;
     constructor(servicie: FindAllTransactionsService);
-    findAll(user_id: number | string): Promise<ApiResponse>;
+    findAll(userId: number | string): Promise<ApiResponse>;
 }

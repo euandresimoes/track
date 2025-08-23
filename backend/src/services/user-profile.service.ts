@@ -14,10 +14,10 @@ export class UserProfileResponseDto {
 export class UserProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(user_id: string | number): Promise<ApiResponse> {
+  async execute(userId: string | number): Promise<ApiResponse> {
     const user = await this.prisma.user.findUnique({
       where: {
-        id: Number(user_id),
+        id: Number(userId),
       },
       select: {
         id: true,

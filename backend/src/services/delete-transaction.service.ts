@@ -11,12 +11,12 @@ export class DeleteTransactionService {
   ) {}
 
   async execute(
-    user_id: number | string,
-    transaction_id: number,
+    userId: number | string,
+    transaction_id: number | string,
   ): Promise<ApiResponse> {
     const user = await this.prisma.user.findUnique({
       where: {
-        id: Number(user_id),
+        id: Number(userId),
       },
       select: {
         id: true,

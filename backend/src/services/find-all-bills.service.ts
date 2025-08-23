@@ -4,7 +4,7 @@ import { PrismaService } from 'src/db/prisma.service';
 import { ApiResponse } from 'src/models/api-response.model';
 
 @Injectable()
-export class FindAllTransactionsService {
+export class FindAllBillsService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(Redis) private readonly redis: Redis,
@@ -26,43 +26,42 @@ export class FindAllTransactionsService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const cachedTransactions = await this.redis.get(
-      `user:${user.id}:transactions`,
-    );
-    if (cachedTransactions) {
+    const cachedBills = await this.redis.get(`user:${userId}:bills`);
+
+    if (cachedBills) {
       return {
         status: HttpStatus.OK,
-        message: 'Transactions found successfully',
+        message: 'Bills found successfully',
         data: {
           user: {
             ...user,
           },
-          transactions: JSON.parse(cachedTransactions),
+          bills: JSON.parse(cachedBills),
         },
       };
     }
 
-    const transactions = await this.prisma.transaction.findMany({
+    const bills = await this.prisma.bill.findMany({
       where: {
         user_id: user.id,
       },
     });
 
     await this.redis.set(
-      `user:${user.id}:transactions`,
-      JSON.stringify(transactions),
+      `user:${userId}:bills`,
+      JSON.stringify(bills),
       'EX',
       3600,
     );
 
     return {
       status: HttpStatus.OK,
-      message: 'Transactions found successfully',
+      message: 'Bills found successfully',
       data: {
         user: {
           ...user,
         },
-        transactions: transactions,
+        bills,
       },
     };
   }

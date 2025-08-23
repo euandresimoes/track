@@ -15,16 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateTransactionController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const create_transaction_service_1 = require("../functions/create-transaction.service");
+const create_transaction_service_1 = require("../services/create-transaction.service");
 const user_decorator_1 = require("../utils/decorators/user.decorator");
 const jwt_guard_1 = require("../utils/jwt/jwt.guard");
+const swagger_2 = require("@nestjs/swagger");
 let CreateTransactionController = class CreateTransactionController {
     service;
     constructor(service) {
         this.service = service;
     }
-    async create(user_id, data) {
-        return this.service.execute(user_id, data);
+    async create(userId, data) {
+        return this.service.execute(userId, data);
     }
 };
 exports.CreateTransactionController = CreateTransactionController;
@@ -40,6 +41,7 @@ __decorate([
 ], CreateTransactionController.prototype, "create", null);
 exports.CreateTransactionController = CreateTransactionController = __decorate([
     (0, common_1.Controller)('v1/transaction/create'),
+    (0, swagger_2.ApiTags)('Transaction'),
     __metadata("design:paramtypes", [create_transaction_service_1.CreateTransactionService])
 ], CreateTransactionController);
 //# sourceMappingURL=create-transaction.controller.js.map

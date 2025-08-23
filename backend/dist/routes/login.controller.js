@@ -14,7 +14,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoginController = void 0;
 const common_1 = require("@nestjs/common");
-const login_service_1 = require("../functions/login.service");
+const login_service_1 = require("../services/login.service");
+const swagger_1 = require("@nestjs/swagger");
 let LoginController = class LoginController {
     service;
     constructor(service) {
@@ -34,6 +35,7 @@ __decorate([
 ], LoginController.prototype, "login", null);
 exports.LoginController = LoginController = __decorate([
     (0, common_1.Controller)('v1/auth/login'),
+    (0, swagger_1.ApiTags)('Auth'),
     __metadata("design:paramtypes", [login_service_1.LoginService])
 ], LoginController);
 //# sourceMappingURL=login.controller.js.map

@@ -1,23 +1,23 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/db/prisma.service';
-import { TransactionType } from '../models/enums/transaction-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsDate,
   IsDecimal,
   IsEnum,
   IsNumber,
-  IsOptional,
   IsPositive,
   IsString,
   Length,
 } from 'class-validator';
 import Redis from 'ioredis';
+import { PrismaService } from 'src/db/prisma.service';
 import { ApiResponse } from 'src/models/api-response.model';
+import { BillStatus } from 'src/models/enums/bill-status.enum';
 
-export class TransactionCreateRequestDto {
+export class CreateBillRequestDto {
   @ApiProperty({
-    description: 'Transaction amount',
     example: 100,
+    description: 'Bill amount',
   })
   @IsPositive()
   @IsNumber()
@@ -25,32 +25,40 @@ export class TransactionCreateRequestDto {
     decimal_digits: '2',
   })
   amount: number;
+
   @ApiProperty({
-    description: 'Transaction description',
-    example: 'Buying a product',
+    example: 'Bill description',
+    description: 'Bill description',
   })
-  @IsOptional()
   @IsString()
-  @Length(1, 50)
+  @Length(1, 20)
   description: string;
+
   @ApiProperty({
-    description: 'Transaction type',
-    example: TransactionType.EXPENSE,
+    example: '2025-08-23',
+    description: 'Bill due date',
   })
-  @IsEnum(TransactionType)
-  type: TransactionType;
+  @IsDate()
+  due_date: Date;
+
+  @ApiProperty({
+    example: 'PENDING',
+    description: 'Bill status | PENDING | PAID | OVERDUE',
+  })
+  @IsEnum(BillStatus)
+  status: BillStatus;
 }
 
 @Injectable()
-export class CreateTransactionService {
+export class CreateBillService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(Redis) private readonly redis: Redis,
   ) {}
 
   async execute(
-    userId: number | string,
-    data: TransactionCreateRequestDto,
+    userId: string | number,
+    data: CreateBillRequestDto,
   ): Promise<ApiResponse> {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -67,22 +75,23 @@ export class CreateTransactionService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    await this.prisma.transaction.create({
+    await this.prisma.bill.create({
       data: {
         user: {
           connect: {
-            id: user.id,
+            id: Number(userId),
           },
         },
         amount: data.amount,
         description: data.description,
-        type: data.type,
+        due_date: new Date(data.due_date),
+        status: data.status,
       },
     });
 
-    await this.redis.del(`user:${user.id}:transactions`);
+    await this.redis.del(`user:${userId}:bills`);
 
-    const transaction = await this.prisma.transaction.findUnique({
+    const bill = await this.prisma.bill.findUnique({
       where: {
         id: user.id,
       },
@@ -91,7 +100,8 @@ export class CreateTransactionService {
         user_id: true,
         amount: true,
         description: true,
-        type: true,
+        due_date: true,
+        status: true,
         created_at: true,
         updated_at: true,
       },
@@ -99,13 +109,13 @@ export class CreateTransactionService {
 
     return {
       status: HttpStatus.CREATED,
-      message: 'Transaction created successfully',
+      message: 'Bill created successfully',
       data: {
         user: {
           ...user,
         },
-        transaction: {
-          ...transaction,
+        bill: {
+          ...bill,
         },
       },
     };

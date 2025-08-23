@@ -5,6 +5,7 @@ import { DeleteTransactionService } from '../delete-transaction.service';
 import { DeleteTransactionController } from 'src/routes/delete-transaction.controller';
 import { FindAllTransactionsService } from '../find-all-transactions.service';
 import { FindAllTransactionsController } from 'src/routes/find-all-transactions.controller';
+import { BillModule } from './bill.module';
 
 @Module({
   providers: [
