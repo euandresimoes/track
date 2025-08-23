@@ -27,17 +27,48 @@ let FindAllTransactionsService = class FindAllTransactionsService {
         this.redis = redis;
     }
     async execute(user_id) {
-        const cachedTransactions = await this.redis.get(`user:${user_id}:transactions`);
+        const user = await this.prisma.user.findUnique({
+            where: {
+                id: Number(user_id),
+            },
+            select: {
+                id: true,
+                display_name: true,
+                email: true,
+            },
+        });
+        if (!user) {
+            throw new common_1.HttpException('User not found', common_1.HttpStatus.NOT_FOUND);
+        }
+        const cachedTransactions = await this.redis.get(`user:${user.id}:transactions`);
         if (cachedTransactions) {
-            return JSON.parse(cachedTransactions);
+            return {
+                status: common_1.HttpStatus.OK,
+                message: 'Transactions found successfully',
+                data: {
+                    user: {
+                        ...user,
+                    },
+                    transactions: JSON.parse(cachedTransactions),
+                },
+            };
         }
         const transactions = await this.prisma.transaction.findMany({
             where: {
-                user_id: Number(user_id),
+                user_id: user.id,
             },
         });
-        await this.redis.set(`user:${user_id}:transactions`, JSON.stringify(transactions), 'EX', 3600);
-        return transactions;
+        await this.redis.set(`user:${user.id}:transactions`, JSON.stringify(transactions), 'EX', 3600);
+        return {
+            status: common_1.HttpStatus.OK,
+            message: 'Transactions found successfully',
+            data: {
+                user: {
+                    ...user,
+                },
+                transactions: transactions,
+            },
+        };
     }
 };
 exports.FindAllTransactionsService = FindAllTransactionsService;

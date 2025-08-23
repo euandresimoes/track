@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { IsEmail, IsString, Length, Matches } from 'class-validator';
 import { PrismaService } from 'src/db/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { ApiResponse } from 'src/models/api-response.model';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterRequestDto {
@@ -34,12 +35,15 @@ export class RegisterRequestDto {
 export class RegisterService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(dto: RegisterRequestDto) {
+  async execute(dto: RegisterRequestDto): Promise<ApiResponse> {
     const { display_name, email, password } = dto;
 
     const user = await this.prisma.user.findUnique({
       where: {
         email,
+      },
+      select: {
+        id: true,
       },
     });
 
@@ -56,5 +60,26 @@ export class RegisterService {
         password: hashedPassword,
       },
     });
+
+    const userCreated = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return {
+      status: HttpStatus.CREATED,
+      message: 'User created successfully',
+      data: {
+        user: {
+          id: userCreated!.id,
+          display_name,
+          email,
+        },
+      },
+    };
   }
 }

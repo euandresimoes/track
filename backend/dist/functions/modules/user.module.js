@@ -12,13 +12,15 @@ const register_service_1 = require("../register.service");
 const register_controller_1 = require("../../routes/register.controller");
 const login_service_1 = require("../login.service");
 const login_controller_1 = require("../../routes/login.controller");
+const user_profile_service_1 = require("../user-profile.service");
+const user_profile_controller_1 = require("../../routes/user-profile.controller");
 let UserModule = class UserModule {
 };
 exports.UserModule = UserModule;
 exports.UserModule = UserModule = __decorate([
     (0, common_1.Module)({
-        providers: [register_service_1.RegisterService, login_service_1.LoginService],
-        controllers: [register_controller_1.RegisterController, login_controller_1.LoginController],
+        providers: [register_service_1.RegisterService, login_service_1.LoginService, user_profile_service_1.UserProfileService],
+        controllers: [register_controller_1.RegisterController, login_controller_1.LoginController, user_profile_controller_1.UserProfileController],
     })
 ], UserModule);
 //# sourceMappingURL=user.module.js.map

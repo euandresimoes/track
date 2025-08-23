@@ -1,6 +1,7 @@
 import { PrismaService } from 'src/db/prisma.service';
 import { TransactionType } from './enums/transaction-type.enum';
 import Redis from 'ioredis';
+import { ApiResponse } from 'src/models/api-response.model';
 export declare class TransactionCreateRequestDto {
     amount: number;
     description: string;
@@ -10,5 +11,5 @@ export declare class CreateTransactionService {
     private readonly prisma;
     private readonly redis;
     constructor(prisma: PrismaService, redis: Redis);
-    execute(user_id: number | string, data: TransactionCreateRequestDto): Promise<void>;
+    execute(user_id: number | string, data: TransactionCreateRequestDto): Promise<ApiResponse>;
 }

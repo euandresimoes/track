@@ -3,8 +3,8 @@ services:
     image: redis
     ports:
       - 6379:6379
-    volumes:
-      - db_redis_data:/var/lib/redis
+    tmpfs:
+      - /var/lib/redis
 
   db_test:
     image: mysql:8.0
@@ -20,7 +20,3 @@ services:
       - /var/lib/mysql
     volumes:
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-
-volumes:
-  db_data:
-  db_redis_data:

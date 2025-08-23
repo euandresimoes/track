@@ -12,6 +12,7 @@ import {
   Length,
 } from 'class-validator';
 import Redis from 'ioredis';
+import { ApiResponse } from 'src/models/api-response.model';
 
 export class TransactionCreateRequestDto {
   @ApiProperty({
@@ -47,10 +48,18 @@ export class CreateTransactionService {
     @Inject(Redis) private readonly redis: Redis,
   ) {}
 
-  async execute(user_id: number | string, data: TransactionCreateRequestDto) {
+  async execute(
+    user_id: number | string,
+    data: TransactionCreateRequestDto,
+  ): Promise<ApiResponse> {
     const user = await this.prisma.user.findUnique({
       where: {
         id: Number(user_id),
+      },
+      select: {
+        id: true,
+        display_name: true,
+        email: true,
       },
     });
 
@@ -62,7 +71,7 @@ export class CreateTransactionService {
       data: {
         user: {
           connect: {
-            id: Number(user_id),
+            id: user.id,
           },
         },
         amount: data.amount,
@@ -72,5 +81,33 @@ export class CreateTransactionService {
     });
 
     await this.redis.del(`user:${user_id}:transactions`);
+
+    const transaction = await this.prisma.transaction.findUnique({
+      where: {
+        id: user.id,
+      },
+      select: {
+        id: true,
+        user_id: true,
+        amount: true,
+        description: true,
+        type: true,
+        created_at: true,
+        updated_at: true,
+      },
+    });
+
+    return {
+      status: HttpStatus.CREATED,
+      message: 'Transaction created successfully',
+      data: {
+        user: {
+          ...user,
+        },
+        transaction: {
+          ...transaction,
+        },
+      },
+    };
   }
 }

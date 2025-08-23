@@ -70,6 +70,11 @@ let CreateTransactionService = class CreateTransactionService {
             where: {
                 id: Number(user_id),
             },
+            select: {
+                id: true,
+                display_name: true,
+                email: true,
+            },
         });
         if (!user) {
             throw new common_1.HttpException('User not found', common_1.HttpStatus.NOT_FOUND);
@@ -78,7 +83,7 @@ let CreateTransactionService = class CreateTransactionService {
             data: {
                 user: {
                     connect: {
-                        id: Number(user_id),
+                        id: user.id,
                     },
                 },
                 amount: data.amount,
@@ -87,6 +92,32 @@ let CreateTransactionService = class CreateTransactionService {
             },
         });
         await this.redis.del(`user:${user_id}:transactions`);
+        const transaction = await this.prisma.transaction.findUnique({
+            where: {
+                id: user.id,
+            },
+            select: {
+                id: true,
+                user_id: true,
+                amount: true,
+                description: true,
+                type: true,
+                created_at: true,
+                updated_at: true,
+            },
+        });
+        return {
+            status: common_1.HttpStatus.CREATED,
+            message: 'Transaction created successfully',
+            data: {
+                user: {
+                    ...user,
+                },
+                transaction: {
+                    ...transaction,
+                },
+            },
+        };
     }
 };
 exports.CreateTransactionService = CreateTransactionService;

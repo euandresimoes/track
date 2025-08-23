@@ -22,7 +22,7 @@ let RegisterController = class RegisterController {
         this.service = service;
     }
     async register(dto) {
-        await this.service.execute(dto);
+        return this.service.execute(dto);
     }
 };
 exports.RegisterController = RegisterController;

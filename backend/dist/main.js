@@ -7,6 +7,7 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const swagger_1 = require("@nestjs/swagger");
 const morgan_1 = __importDefault(require("morgan"));
+const nestjs_api_reference_1 = require("@scalar/nestjs-api-reference");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
@@ -28,8 +29,15 @@ async function bootstrap() {
         .build();
     const document = swagger_1.SwaggerModule.createDocument(app, config);
     swagger_1.SwaggerModule.setup('api', app, document);
+    app.use('/reference', (0, nestjs_api_reference_1.apiReference)({
+        content: document,
+        theme: 'kepler',
+    }));
     app.use((0, morgan_1.default)('dev'));
-    await app.listen(process.env.PORT ?? 3000);
+    await app.listen(process.env.PORT ?? 3000, () => {
+        console.log(`\n- 🚀 Server ready at http://localhost:${process.env.PORT ?? 3000}`);
+        console.log(`- 📖 Documentation available at http://localhost:${process.env.PORT ?? 3000}/reference`);
+    });
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

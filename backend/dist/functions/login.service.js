@@ -42,7 +42,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginService = exports.LoginResponseDto = exports.LoginRequestDto = void 0;
+exports.LoginService = exports.LoginRequestDto = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../db/prisma.service");
 const bcrypt = __importStar(require("bcrypt"));
@@ -67,10 +67,6 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], LoginRequestDto.prototype, "password", void 0);
-class LoginResponseDto {
-    access_token;
-}
-exports.LoginResponseDto = LoginResponseDto;
 let LoginService = class LoginService {
     prisma;
     jwtService;
@@ -82,6 +78,12 @@ let LoginService = class LoginService {
         const user = await this.prisma.user.findUnique({
             where: {
                 email: dto.email,
+            },
+            select: {
+                id: true,
+                display_name: true,
+                email: true,
+                password: true,
             },
         });
         if (!user) {
@@ -95,7 +97,16 @@ let LoginService = class LoginService {
             id: user.id,
         });
         return {
-            access_token: token,
+            status: common_1.HttpStatus.OK,
+            message: 'Login successful',
+            data: {
+                access_token: token,
+                user: {
+                    id: user.id,
+                    display_name: user.display_name,
+                    email: user.email,
+                },
+            },
         };
     }
 };

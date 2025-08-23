@@ -27,10 +27,31 @@ let DeleteTransactionService = class DeleteTransactionService {
         this.redis = redis;
     }
     async execute(user_id, transaction_id) {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                id: Number(user_id),
+            },
+            select: {
+                id: true,
+                display_name: true,
+                email: true,
+            },
+        });
+        if (!user) {
+            throw new common_1.HttpException('User not found', common_1.HttpStatus.NOT_FOUND);
+        }
         const transaction = await this.prisma.transaction.findFirst({
             where: {
                 id: Number(transaction_id),
-                user_id: Number(user_id),
+                user_id: user.id,
+            },
+            select: {
+                id: true,
+                amount: true,
+                description: true,
+                type: true,
+                created_at: true,
+                updated_at: true,
             },
         });
         if (!transaction) {
@@ -39,10 +60,22 @@ let DeleteTransactionService = class DeleteTransactionService {
         await this.prisma.transaction.delete({
             where: {
                 id: Number(transaction_id),
-                user_id: Number(user_id),
+                user_id: user.id,
             },
         });
-        await this.redis.del(`user:${user_id}:transactions`);
+        await this.redis.del(`user:${user.id}:transactions`);
+        return {
+            status: common_1.HttpStatus.OK,
+            message: 'Transaction deleted successfully',
+            data: {
+                user: {
+                    ...user,
+                },
+                transaction: {
+                    ...transaction,
+                },
+            },
+        };
     }
 };
 exports.DeleteTransactionService = DeleteTransactionService;

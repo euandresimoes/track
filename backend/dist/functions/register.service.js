@@ -94,6 +94,9 @@ let RegisterService = class RegisterService {
             where: {
                 email,
             },
+            select: {
+                id: true,
+            },
         });
         if (user) {
             throw new common_1.HttpException('Email already exists', common_1.HttpStatus.CONFLICT);
@@ -106,6 +109,25 @@ let RegisterService = class RegisterService {
                 password: hashedPassword,
             },
         });
+        const userCreated = await this.prisma.user.findUnique({
+            where: {
+                email,
+            },
+            select: {
+                id: true,
+            },
+        });
+        return {
+            status: common_1.HttpStatus.CREATED,
+            message: 'User created successfully',
+            data: {
+                user: {
+                    id: userCreated.id,
+                    display_name,
+                    email,
+                },
+            },
+        };
     }
 };
 exports.RegisterService = RegisterService;

@@ -4,6 +4,7 @@ import {
   CreateTransactionService,
   TransactionCreateRequestDto,
 } from 'src/functions/create-transaction.service';
+import { ApiResponse } from 'src/models/api-response.model';
 import { User } from 'src/utils/decorators/user.decorator';
 import { JwtGuard } from 'src/utils/jwt/jwt.guard';
 
@@ -17,7 +18,7 @@ export class CreateTransactionController {
   async create(
     @User('id') user_id: number,
     @Body() data: TransactionCreateRequestDto,
-  ) {
+  ): Promise<ApiResponse> {
     return this.service.execute(user_id, data);
   }
 }
