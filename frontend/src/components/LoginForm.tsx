@@ -1,3 +1,4 @@
+import loginService from "@/services/LoginService";
 import { Eye, EyeClosed } from "lucide-react";
 import React, { useState } from "react";
 
@@ -15,37 +16,7 @@ const LoginForm = () => {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    const body = {
-      email,
-      password,
-    };
-
-    const req = await fetch(`${import.meta.env.VITE_API_URL}/v1/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const res = await req.json();
-
-    if (req.status === 404) {
-      console.error(res.message);
-      return;
-    }
-
-    if (req.status === 401) {
-      console.error(res.message);
-      return;
-    }
-
-    if (req.status === 201) {
-      localStorage.setItem("accessToken", res.access_token);
-      console.log(localStorage.getItem("accessToken"));
-      return;
-    }
+    await loginService.execute({ email, password });
   }
 
   return (

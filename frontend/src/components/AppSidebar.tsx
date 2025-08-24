@@ -18,8 +18,11 @@ import {
   Wallet,
   LayoutDashboard,
 } from "lucide-react";
+import userProfileService, { UserProfile } from "@/services/UserProfileService";
+import verifyAccessTokenService from "@/services/VerifyAccessTokenService";
 
 export function AppSidebar() {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [openPersonal, setOpenPersonal] = useState(false);
   const [openBusiness, setOpenBusiness] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -35,7 +38,19 @@ export function AppSidebar() {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+
+    const fetchProfile = async () => {
+      await verifyAccessTokenService.execute();
+      const profile = await userProfileService.execute();
+      setProfile(profile);
+    };
+    fetchProfile();
   }, [dark]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    window.location.href = "/login";
+  };
 
   const sidebarWidth = collapsed ? "w-16" : "w-64";
   const iconSize = collapsed ? 20 : 18;
@@ -51,18 +66,18 @@ export function AppSidebar() {
         <nav className={`py-4 ${collapsed ? "px-2" : "px-6"}`}>
           <div
             className={
-              collapsed
+              collapsed && !mobileOpen
                 ? "flex flex-col items-start mb-4"
                 : "flex flex-col gap-1 mb-4 items-start w-full"
             }
           >
-            {!collapsed && (
+            {!collapsed && !mobileOpen && (
               <div className="flex items-center w-full justify-between">
                 <h2 className="text-xs font-semibold text-foreground/90">
                   Navegação
                 </h2>
                 <button
-                  className="text-foreground hover:text-foreground/80"
+                  className="text-foreground hover:text-foreground/80 md:block hidden"
                   onClick={() => setCollapsed((v) => !v)}
                   aria-label="Retrair sidebar"
                 >
@@ -257,15 +272,16 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-base font-semibold text-foreground leading-tight">
-                Usuário
+                {profile?.display_name || "Carregando..."}
               </span>
               <span className="text-xs text-muted-foreground">
-                usuario@email.com
+                {profile?.email || ""}
               </span>
             </div>
           )}
         </div>
         <button
+          onClick={() => handleLogout()}
           className={
             collapsed
               ? "flex flex-col items-center justify-center h-12 w-full mt-2 text-foreground rounded-md transition-colors cursor-pointer px-1 group hover:bg-foreground"
@@ -288,21 +304,22 @@ export function AppSidebar() {
 
   return (
     <>
-      <button
-        className="md:hidden fixed top-4 left-4 z-50 bg-background rounded-full p-2 shadow-md"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Abrir menu"
-      >
-        <Menu size={24} />
-      </button>
+      <div className={mobileOpen ? "hidden" : ""}>
+        <button
+          className="md:hidden fixed top-4 left-4 z-30 bg-background rounded-full p-2 shadow-md"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Abrir menu"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
       <div className="hidden md:block">{sidebarContent}</div>
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 flex">
-          {sidebarContent}
-          <div
-            className="flex-1 bg-background/80"
-            onClick={() => setMobileOpen(false)}
-          ></div>
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="flex h-full w-full">
+            <div className="w-[280px]">{sidebarContent}</div>
+            <div className="flex-1" onClick={() => setMobileOpen(false)}></div>
+          </div>
         </div>
       )}
     </>

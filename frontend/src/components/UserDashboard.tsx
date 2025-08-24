@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
@@ -20,14 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-
-interface Transaction {
-  id: string;
-  type: "sale" | "expense";
-  amount: number;
-  description: string;
-  date: string;
-}
+import verifyAccessTokenService from "@/services/VerifyAccessTokenService";
+import transactionService, { Transaction } from "@/services/TransactionService";
 
 interface FilterState {
   type: string;
@@ -46,159 +40,17 @@ const UserDashboard = () => {
     endDate: "",
   });
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: "1",
-      type: "sale",
-      amount: 1500,
-      description: "Project payment",
-      date: "2025-08-18",
-    },
-    {
-      id: "2",
-      type: "expense",
-      amount: 500,
-      description: "Office supplies",
-      date: "2025-08-17",
-    },
-    {
-      id: "3",
-      type: "sale",
-      amount: 1854,
-      description: "Xbox Series S",
-      date: "2025-09-14",
-    },
-    {
-      id: "4",
-      type: "sale",
-      amount: 930,
-      description: "Moto G15",
-      date: "2025-09-23",
-    },
-    {
-      id: "5",
-      type: "expense",
-      amount: 300,
-      description: "Internet bill",
-      date: "2025-09-01",
-    },
-    {
-      id: "6",
-      type: "sale",
-      amount: 2200,
-      description: "Freelance website",
-      date: "2025-09-05",
-    },
-    {
-      id: "7",
-      type: "expense",
-      amount: 150,
-      description: "Electricity bill",
-      date: "2025-09-07",
-    },
-    {
-      id: "8",
-      type: "sale",
-      amount: 760,
-      description: "Tablet Samsung",
-      date: "2025-09-10",
-    },
-    {
-      id: "9",
-      type: "expense",
-      amount: 1200,
-      description: "New monitor",
-      date: "2025-09-11",
-    },
-    {
-      id: "10",
-      type: "sale",
-      amount: 3400,
-      description: "Mobile app project",
-      date: "2025-09-15",
-    },
-    {
-      id: "11",
-      type: "expense",
-      amount: 450,
-      description: "Team lunch",
-      date: "2025-09-16",
-    },
-    {
-      id: "12",
-      type: "sale",
-      amount: 1290,
-      description: "Headphones",
-      date: "2025-09-18",
-    },
-    {
-      id: "13",
-      type: "sale",
-      amount: 2750,
-      description: "Backend service",
-      date: "2025-09-21",
-    },
-    {
-      id: "14",
-      type: "expense",
-      amount: 600,
-      description: "Cloud services",
-      date: "2025-09-22",
-    },
-    {
-      id: "15",
-      type: "sale",
-      amount: 980,
-      description: "Keyboard + Mouse",
-      date: "2025-09-24",
-    },
-    {
-      id: "16",
-      type: "expense",
-      amount: 250,
-      description: "Coffee & snacks",
-      date: "2025-09-25",
-    },
-    {
-      id: "17",
-      type: "sale",
-      amount: 4200,
-      description: "E-commerce website",
-      date: "2025-09-27",
-    },
-    {
-      id: "18",
-      type: "expense",
-      amount: 700,
-      description: "Software licenses",
-      date: "2025-09-28",
-    },
-    {
-      id: "19",
-      type: "sale",
-      amount: 1950,
-      description: "Gaming PC build",
-      date: "2025-09-29",
-    },
-    {
-      id: "20",
-      type: "expense",
-      amount: 320,
-      description: "Transport",
-      date: "2025-09-30",
-    },
-    // Add more sample data as needed
-  ]);
+  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
 
-  const totalSales = transactions
-    .filter((t) => t.type === "sale")
-    .reduce((acc, curr) => acc + curr.amount, 0);
+  useEffect(() => {
+    verifyAccessTokenService.execute();
 
-  const totalExpenses = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((acc, curr) => acc + curr.amount, 0);
-
-  const balance = totalSales - totalExpenses;
+    const fetchTransactions = async () => {
+      const transactions = await transactionService.findAll();
+      setTransactions(transactions);
+    };
+    fetchTransactions();
+  }, []);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -209,22 +61,70 @@ const UserDashboard = () => {
     });
   };
 
+  const formatCurrency = (value: number) => {
+    // Converter para número se necessário
+    const numValue = typeof value === "number" ? value : Number(value);
+
+    // Verificar se o valor é um número válido
+    if (isNaN(numValue) || !isFinite(numValue)) {
+      return "R$ 0,00";
+    }
+
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(numValue);
+  };
+
+  if (!transactions) {
+    return (
+      <div className="h-screen overflow-y-auto p-4 space-y-4 bg-background/5">
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Carregando transações...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const totalSales = transactions
+    .filter((t) => t.type === "INCOME")
+    .reduce((acc, curr) => {
+      const amount = Number(curr.amount);
+      return acc + (isNaN(amount) ? 0 : amount);
+    }, 0);
+
+  const totalExpenses = transactions
+    .filter((t) => t.type === "EXPENSE")
+    .reduce((acc, curr) => {
+      const amount = Number(curr.amount);
+      return acc + (isNaN(amount) ? 0 : amount);
+    }, 0);
+
+  const balance = totalSales - totalExpenses;
+
   const chartData = transactions
     .reduce((acc: any[], transaction) => {
-      const date = formatDate(transaction.date);
+      const date = formatDate(transaction.created_at);
+      const amount = Number(transaction.amount);
+
+      // Ignorar transações com valores inválidos
+      if (isNaN(amount)) return acc;
+
       const existingData = acc.find((item) => item.date === date);
 
       if (existingData) {
-        if (transaction.type === "sale") {
-          existingData.sales += transaction.amount;
+        if (transaction.type === "INCOME") {
+          existingData.sales += amount;
         } else {
-          existingData.expenses += transaction.amount;
+          existingData.expenses += amount;
         }
       } else {
         acc.push({
           date,
-          sales: transaction.type === "sale" ? transaction.amount : 0,
-          expenses: transaction.type === "expense" ? transaction.amount : 0,
+          sales: transaction.type === "INCOME" ? amount : 0,
+          expenses: transaction.type === "EXPENSE" ? amount : 0,
         });
       }
 
@@ -232,36 +132,75 @@ const UserDashboard = () => {
     }, [])
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  const handleDelete = (id: string) => {
-    setTransactions(transactions.filter((t) => t.id !== id));
+  const handleDelete = async (id: number) => {
+    const req = await fetch(
+      `${
+        import.meta.env.VITE_API_URL
+      }/v1/transaction/delete?transaction_id=${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    if (req.status === 200) {
+      setTransactions(transactions.filter((t) => t.id !== id));
+      return;
+    }
+
+    return;
   };
 
-  const filteredTransactions = transactions.filter((transaction) => {
-    // Filter by type
-    if (filters.type !== "all" && transaction.type !== filters.type) {
-      return false;
-    }
+  const filteredTransactions =
+    transactions
+      ?.filter((transaction) => {
+        // Filter by type
+        if (filters.type !== "all" && transaction.type !== filters.type) {
+          return false;
+        }
 
-    // Filter by amount
-    const amount = transaction.amount;
-    if (filters.minAmount && amount < parseFloat(filters.minAmount)) {
-      return false;
-    }
-    if (filters.maxAmount && amount > parseFloat(filters.maxAmount)) {
-      return false;
-    }
+        // Filter by amount
+        const amount = transaction.amount;
+        if (filters.minAmount && amount < parseFloat(filters.minAmount)) {
+          return false;
+        }
+        if (filters.maxAmount && amount > parseFloat(filters.maxAmount)) {
+          return false;
+        }
 
-    // Filter by date
-    const date = new Date(transaction.date);
-    if (filters.startDate && date < new Date(filters.startDate)) {
-      return false;
-    }
-    if (filters.endDate && date > new Date(filters.endDate)) {
-      return false;
-    }
+        // Filter by date
+        if (filters.startDate || filters.endDate) {
+          // Convert transaction date to dd/mm/yyyy format for comparison
+          const transactionDate = new Date(transaction.created_at);
+          const transactionDateStr = formatDate(transactionDate.toISOString());
 
-    return true;
-  });
+          // Convert filter dates to Date objects for proper comparison
+          if (filters.startDate) {
+            const [startDay, startMonth, startYear] = filters.startDate.split('/');
+            const startDateObj = new Date(parseInt(startYear), parseInt(startMonth) - 1, parseInt(startDay));
+            if (transactionDate < startDateObj) {
+              return false;
+            }
+          }
+
+          if (filters.endDate) {
+            const [endDay, endMonth, endYear] = filters.endDate.split('/');
+            const endDateObj = new Date(parseInt(endYear), parseInt(endMonth) - 1, parseInt(endDay), 23, 59, 59);
+            if (transactionDate > endDateObj) {
+              return false;
+            }
+          }
+        }
+
+        return true;
+      })
+      ?.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ) || [];
 
   return (
     <div className="h-screen overflow-y-auto p-4 space-y-4 bg-background/5">
@@ -275,19 +214,19 @@ const UserDashboard = () => {
           </CardHeader>
           <CardContent className="p-4 pt-1">
             <p className="text-xl font-bold text-emerald-500">
-              R${totalSales.toLocaleString()}
+              {formatCurrency(totalSales)}
             </p>
           </CardContent>
         </Card>
         <Card className="shadow-md bg-card/80">
           <CardHeader className="p-4 pb-2">
             <CardTitle className="text-base font-medium text-card-foreground">
-              Total de Despesas
+              Total de Gastos
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 pt-1">
             <p className="text-xl font-bold text-red-500">
-              R${totalExpenses.toLocaleString()}
+              {formatCurrency(totalExpenses)}
             </p>
           </CardContent>
         </Card>
@@ -303,7 +242,7 @@ const UserDashboard = () => {
                 balance >= 0 ? "text-emerald-500" : "text-red-500"
               }`}
             >
-              ${balance.toLocaleString()}
+              {formatCurrency(balance)}
             </p>
           </CardContent>
         </Card>
@@ -318,7 +257,10 @@ const UserDashboard = () => {
         </CardHeader>
         <CardContent className="p-4 pt-1">
           <ChartContainer className="w-full h-[250px]" config={{}}>
-            <AreaChart data={chartData}>
+            <AreaChart
+              data={chartData}
+              margin={{ left: 40, right: 20, top: 20, bottom: 20 }}
+            >
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="hsl(var(--border))"
@@ -329,8 +271,18 @@ const UserDashboard = () => {
               />
               <YAxis
                 tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                tickFormatter={(value) => formatCurrency(value)}
               />
-              <ChartTooltip content={<ChartTooltipContent />} />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => [
+                      formatCurrency(Number(value)),
+                      name === "sales" ? " Vendas" : " Gastos",
+                    ]}
+                  />
+                }
+              />
               <Area
                 type="monotone"
                 dataKey="sales"
@@ -377,16 +329,16 @@ const UserDashboard = () => {
                   Todos os Tipos
                 </SelectItem>
                 <SelectItem
-                  value="sale"
+                  value="INCOME"
                   className="hover:bg-foreground/80 hover:text-background text-foreground focus:bg-foreground/80 focus:text-background"
                 >
                   Vendas
                 </SelectItem>
                 <SelectItem
-                  value="expense"
+                  value="EXPENSE"
                   className="hover:bg-foreground/80 hover:text-background text-foreground focus:bg-foreground/80 focus:text-background"
                 >
-                  Despesas
+                  Gastos
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -413,37 +365,19 @@ const UserDashboard = () => {
               type="text"
               placeholder="dd/mm/yyyy"
               className="h-8 text-xs ring-0 focus:ring-0 focus:ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-              value={filters.startDate ? formatDate(filters.startDate) : ""}
-              onChange={(e) => {
-                const [day, month, year] = e.target.value.split("/");
-                const formattedDate =
-                  day && month && year ? `${year}-${month}-${day}` : "";
-                setFilters({ ...filters, startDate: formattedDate });
-              }}
-              onKeyPress={(e) => {
-                const pattern = /[0-9\/]/;
-                if (!pattern.test(e.key)) {
-                  e.preventDefault();
-                }
-              }}
+              value={filters.startDate}
+              onChange={(e) =>
+                setFilters({ ...filters, startDate: e.target.value })
+              }
             />
             <Input
               type="text"
               placeholder="dd/mm/yyyy"
               className="h-8 text-xs ring-0 focus:ring-0 focus:ring-offset-0 outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-              value={filters.endDate ? formatDate(filters.endDate) : ""}
-              onChange={(e) => {
-                const [day, month, year] = e.target.value.split("/");
-                const formattedDate =
-                  day && month && year ? `${year}-${month}-${day}` : "";
-                setFilters({ ...filters, endDate: formattedDate });
-              }}
-              onKeyPress={(e) => {
-                const pattern = /[0-9\/]/;
-                if (!pattern.test(e.key)) {
-                  e.preventDefault();
-                }
-              }}
+              value={filters.endDate}
+              onChange={(e) =>
+                setFilters({ ...filters, endDate: e.target.value })
+              }
             />
           </div>
 
@@ -465,7 +399,7 @@ const UserDashboard = () => {
                 {filteredTransactions.map((transaction) => (
                   <TableRow key={transaction.id} className="text-sm">
                     <TableCell className="py-2">
-                      {formatDate(transaction.date)}
+                      {formatDate(transaction.created_at)}
                     </TableCell>
                     <TableCell className="py-2">
                       {transaction.description}
@@ -473,22 +407,22 @@ const UserDashboard = () => {
                     <TableCell className="py-2">
                       <span
                         className={
-                          transaction.type === "sale"
+                          transaction.type === "INCOME"
                             ? "text-emerald-500"
                             : "text-red-500"
                         }
                       >
-                        {transaction.type === "sale" ? "Venda" : "Despesa"}
+                        {transaction.type === "INCOME" ? "Venda" : "Gasto"}
                       </span>
                     </TableCell>
                     <TableCell
                       className={`py-2 ${
-                        transaction.type === "sale"
+                        transaction.type === "INCOME"
                           ? "text-emerald-500"
                           : "text-red-500"
                       }`}
                     >
-                      R${transaction.amount.toLocaleString()}
+                      {formatCurrency(transaction.amount)}
                     </TableCell>
                     <TableCell className="py-2">
                       <button

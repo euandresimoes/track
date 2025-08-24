@@ -1,3 +1,4 @@
+import registerService from "@/services/RegisterService";
 import { Eye, EyeClosed } from "lucide-react";
 import React, { useRef, useState } from "react";
 
@@ -22,34 +23,15 @@ const RegisterForm = () => {
   }
 
   const reqBody = {
-    display_name: displayName,
-    email: email,
-    password: password,
+    displayName,
+    email,
+    password,
   };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const req = await fetch(
-      `${import.meta.env.VITE_API_URL}/v1/auth/register`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reqBody),
-      }
-    );
-
-    if (req.status === 409) {
-      const res = await req.json();
-      return;
-    }
-
-    if (req.status === 201) {
-      document.location.href = "/login";
-      return;
-    }
+    await registerService.execute({ ...reqBody });
   }
 
   return (
